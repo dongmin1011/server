@@ -23,7 +23,7 @@ public class JwtTokenProvider {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
-    public String createToken(String LoginId) {
+    public String createToken(String LoginId, String password) {
 //        jwtSecret = JwtUtils.generateJwtSecret();
 
         Date now = new Date();
@@ -32,7 +32,8 @@ public class JwtTokenProvider {
 //        claims.put("id", ID);
 //        claims.put("name", name);
         Claims claims = Jwts.claims().setSubject(LoginId);
-
+        claims.put("LoginId", LoginId);
+        claims.put("password", password);
 
         System.out.println("secretKey = " + secretKey);
         return Jwts.builder()

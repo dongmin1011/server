@@ -42,8 +42,27 @@ public class StoreService {
         // DTO 객체를 Entity 객체로 변환
         StoreEntity storeEntity = StoreEntity.convertToEntity(storeDTO);
 
-        // Entity 객체를 저장
-        storeRepository.save(storeEntity);
+        // 가게 이름으로 기존 가게 조회
+        Optional<StoreEntity> existingStore = storeRepository.findByName(storeDTO.getStoreName());
+
+        if (existingStore.isPresent()) {
+            // 기존 가게가 존재하는 경우 업데이트
+            StoreEntity updatedStore = existingStore.get();
+            // 업데이트할 필드들을 적절하게 설정
+            updatedStore.setAddress(storeEntity.getAddress());
+            updatedStore.setBusinessTime(storeEntity.getBusinessTime());
+            updatedStore.setScore(storeEntity.getScore());
+            updatedStore.setPH(storeEntity.getPH());
+            updatedStore.setViewsCounter(updatedStore.getViewsCounter());
+            updatedStore.setFavoriteCounter(updatedStore.getFavoriteCounter());
+            updatedStore.setURL(storeEntity.getURL());
+
+            // 엔티티 업데이트
+            storeRepository.save(updatedStore);
+        } else {
+            // 기존 가게가 없는 경우 저장
+            storeRepository.save(storeEntity);
+        }
     }
     public void saveMenusFromJson(MenuDTO menuDTO){
         String storeName = menuDTO.getStoreName();
@@ -204,6 +223,16 @@ public class StoreService {
 //        communityCommentRepository.save(communityEntity);
 
     }
+    public List<StoreDTO> getStoreList(){
+        List<StoreEntity> storeEntities = storeRepository.findAll();
+        List<StoreDTO> storeDTOList = new ArrayList<>();
+        if( !storeEntities.isEmpty()){
+            for(StoreEntity storeEntity: storeEntities){
+                storeDTOList.add(StoreDTO.toStoreDTO(storeEntity));
+            }
+        }
+        return storeDTOList;
+    }
 
 
     public StoreDTO getStoreInfo(String Name ){
@@ -213,6 +242,9 @@ public class StoreService {
         if(store.isPresent()){
             //조회 결과 있음
             StoreEntity storeEntity = store.get();
+
+            storeEntity.incrementViewsCounter(); // viewsCounter 증가
+            storeRepository.save(storeEntity); // 변경된 값 저장
             StoreDTO dto = StoreDTO.toStoreDTO(storeEntity);
 
             return dto;

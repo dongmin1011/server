@@ -32,12 +32,20 @@ public class StoreEntity {
     @Column(length = 30)
     private String address;
 
-    @Column(length = 20)
+    @Column()
     private String businessTime;
 
     @Column
     private String score;
 
+    @Column(columnDefinition = "int default 0") // 컬럼 기본값 설정
+    private int favoriteCounter = 0; // 좋아요 수를 저장하는 변수
+
+    @Column(columnDefinition = "int default 0") // 컬럼 기본값 설정
+    private int viewsCounter = 0; // 조회 수를 저장하는 변수
+
+    @Column(length = 300)
+    private String URL;
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MenuEntity> menus;
@@ -58,7 +66,9 @@ public class StoreEntity {
         storeEntity.setBusinessTime(storeDTO.getBusinessTime());
         storeEntity.setScore(storeDTO.getScore());
         // 필요한 다른 필드도 설정할 수 있습니다.
-
+        storeEntity.setFavoriteCounter(0);
+        storeEntity.setViewsCounter(0);
+        storeEntity.setURL(storeDTO.getStorePhoto());
         return storeEntity;
     }
 // 메뉴 추가 메서드
@@ -76,6 +86,9 @@ public void addMenu(MenuEntity menu) {
             menus.remove(menu);
             menu.setStore(null);
         }
+    }
+    public void incrementViewsCounter() {
+        this.viewsCounter++;
     }
 
 }

@@ -22,11 +22,11 @@ public class MenuEntity {
 //    @Column(length = 20)
 //    private String name;
 
-    @Column(length = 20)
+    @Column()
     private String menuname;
 
 
-    @Column(length = 500)
+    @Column(length = 1000)
     private String menupicture;
 
     @Column

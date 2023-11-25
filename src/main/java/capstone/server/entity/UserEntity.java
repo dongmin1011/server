@@ -1,11 +1,12 @@
 package capstone.server.entity;
 
 import capstone.server.dto.UserDTO;
-import capstone.server.service.UserService;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Setter
@@ -26,6 +27,9 @@ public class UserEntity {
     @Column
     private String name;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserStoreEntity> storeEntities;
+
     public static UserEntity toUserEntity(UserDTO userDTO){
         UserEntity userEntity = new UserEntity();
         userEntity.setLoginId(userDTO.getLoginId());
@@ -41,6 +45,9 @@ public class UserEntity {
         userEntity.setLoginId(userDTO.getLoginId());
         userEntity.setPassword(userDTO.getPassword());
         userEntity.setName(userDTO.getName());
+
+
+
         return userEntity;
     }
 }

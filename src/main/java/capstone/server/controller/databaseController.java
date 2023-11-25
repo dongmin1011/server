@@ -16,11 +16,12 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 public class databaseController {
 
@@ -31,9 +32,26 @@ public class databaseController {
     private final StoreService storeService;
 
     private ObjectMapper objectMapper = new ObjectMapper();
+    private String ip = "211.179.26.243:5000";
+    @GetMapping("/get/storeList")
+    @ResponseBody
+    public List<StoreDTO> getStoreList(@RequestParam(required = false) String orderBy) {
+        List<StoreDTO> storeList = storeService.getStoreList();
+
+        if ("name".equals(orderBy)) { // 가나다 순으로 정렬
+            storeList.sort(Comparator.comparing(StoreDTO::getStoreName));
+        } else if ("favorite".equals(orderBy)) { // 좋아요 개수에 따라 정렬
+            storeList.sort(Comparator.comparingInt(StoreDTO::getFavoriteCount).reversed());
+        }
+        else if ("views".equals(orderBy)) { // 조회수에 따라 정렬
+            storeList.sort(Comparator.comparingInt(StoreDTO::getViewsCount).reversed());
+        }
+
+        return storeList;
+    }
+
 
     @PostMapping("/api/call")
-
     public String callApi(@RequestParam("textValue") String textValue) {
         System.out.println("textValue = " + textValue);
         RestTemplate restTemplate = new RestTemplate();
@@ -53,7 +71,7 @@ public class databaseController {
 
 
             HttpEntity<String> requestEntity = new HttpEntity<>(jsonBody, headers);
-            ResponseEntity<String> responseEntity = restTemplate.postForEntity("http://59.27.197.46:5000/profile",requestEntity, String.class);
+            ResponseEntity<String> responseEntity = restTemplate.postForEntity("http://"+ip+"/profile",requestEntity, String.class);
 
 //            System.out.println("responseEntity = " + responseEntity);
             String jsonString = responseEntity.getBody();
@@ -98,7 +116,7 @@ public class databaseController {
 
 
             HttpEntity<String> requestEntity = new HttpEntity<>(jsonBody, headers);
-            ResponseEntity<String> responseEntity = restTemplate.postForEntity("http://59.27.197.46:5000/menu", requestEntity, String.class);
+            ResponseEntity<String> responseEntity = restTemplate.postForEntity("http://"+ip+"/menu", requestEntity, String.class);
 
 //            System.out.println("responseEntity = " + responseEntity);
             String jsonString = responseEntity.getBody();
@@ -139,7 +157,7 @@ public class databaseController {
             headers.setContentType(MediaType.APPLICATION_JSON);
 
             HttpEntity<String> requestEntity = new HttpEntity<>(jsonBody, headers);
-            ResponseEntity<String> responseEntity = restTemplate.postForEntity("http://218.158.169.154:5000/review", requestEntity, String.class);
+            ResponseEntity<String> responseEntity = restTemplate.postForEntity("http://"+ip+"/review", requestEntity, String.class);
 
 //            System.out.println("responseEntity = " + responseEntity);
             String jsonString = responseEntity.getBody();
@@ -183,7 +201,7 @@ public class databaseController {
             headers.setContentType(MediaType.APPLICATION_JSON);
 
             HttpEntity<String> requestEntity = new HttpEntity<>(jsonBody, headers);
-            ResponseEntity<String> responseEntity = restTemplate.postForEntity("http://218.158.169.154:5000/review", requestEntity, String.class);
+            ResponseEntity<String> responseEntity = restTemplate.postForEntity("http://"+ip+"/review", requestEntity, String.class);
 
             String jsonString = responseEntity.getBody();
             System.out.println("jsonString = " + jsonString);
@@ -207,13 +225,15 @@ public class databaseController {
         }
     }
     @PostMapping("/database/save/community")
-    @ResponseStatus(HttpStatus.OK)
+//    @ResponseStatus
+//    @ResponseBody
     public void saveCommunity(@RequestBody  CommunityReview review){
         System.out.println("review = " + review);
         storeService.saveCommunity(review);
     }
     @PostMapping("/database/save/community/comment")
-    @ResponseStatus(HttpStatus.OK)
+//    @ResponseStatus
+//    @ResponseBody
     public void saveCommunityChild(@RequestBody  CommunityChildDTO review){
         System.out.println("review = " + review);
         storeService.saveCommunityChild(review);
@@ -233,6 +253,14 @@ public class databaseController {
         System.out.println("Name = " + Name);
         MenuDTO menuDTO = storeService.getMenuInfo(Name);
 //        System.out.println("storeInfo = " + storeInfo);
+        if(menuDTO==null){
+            System.out.println("review = " + menuDTO);
+            MenuDTO nullMenu = new MenuDTO();
+            nullMenu.setStoreName(Name);
+//            nullMenu.setReviews(null);
+            return  nullMenu;
+
+        }
         return menuDTO;
 
     }
@@ -241,6 +269,14 @@ public class databaseController {
     public ReviewDTO getNaverReview(@RequestParam String Name){
         System.out.println("Name = " + Name);
         ReviewDTO review = storeService.getReview(Name);
+        if(review==null){
+            System.out.println("review = " + review);
+            ReviewDTO nullReview = new ReviewDTO();
+            nullReview.setStoreName(Name);
+            nullReview.setReviews(null);
+            return  nullReview;
+
+        }
 //        System.out.println("storeInfo = " + storeInfo);
         return review;
 
@@ -250,6 +286,14 @@ public class databaseController {
     public EveryTimeReviewDTO getETReview(@RequestParam String Name){
         System.out.println("Name = " + Name);
         EveryTimeReviewDTO review = storeService.getETReview(Name);
+        if(review==null){
+            System.out.println("review = " + review);
+            EveryTimeReviewDTO nullReview = new EveryTimeReviewDTO();
+            nullReview.setStoreName(Name);
+            nullReview.setReviews(null);
+            return  nullReview;
+
+        }
 //        System.out.println("storeInfo = " + storeInfo);
         return review;
 
