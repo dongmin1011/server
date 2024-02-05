@@ -224,6 +224,18 @@ public class databaseController {
             throw new RuntimeException(e);
         }
     }
+    @PostMapping("/database/save/menuItem")
+    public void saveMenu(@RequestBody Map menu){
+        System.out.println("storeName = " + menu);
+//        System.out.println("menuItemDTO = " + menuItemDTO);
+        String storeName = (String) menu.get("storeName");
+        MenuItemDTO menuItemDTO = new MenuItemDTO();
+        menuItemDTO.setFoodName((String) menu.get("menuName"));
+        menuItemDTO.setPrice((String) menu.get("menuPrice"));
+        System.out.println("menuItemDTO = " + menuItemDTO);
+        storeService.saveMenuItem(storeName, menuItemDTO);
+    }
+
     @PostMapping("/database/save/community")
 //    @ResponseStatus
 //    @ResponseBody

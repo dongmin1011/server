@@ -79,6 +79,16 @@ public class StoreService {
             menuRepository.save(menuEntity);
         }
     }
+    public void saveMenuItem(String storeName, MenuItemDTO menuItemDTO){
+        String menuName = menuItemDTO.getFoodName();
+        String menuPrice = menuItemDTO.getPrice();
+        MenuEntity menuEntity = new MenuEntity();
+        menuEntity.setMenuname(menuName);
+        menuEntity.setPrice(menuPrice);
+        menuEntity.setStore(storeRepository.findByName(storeName).get());
+        menuRepository.save(menuEntity);
+    }
+
     public void saveNaverComment(ReviewDTO reviewDTO){
         String storeName = reviewDTO.getStoreName();
         List<NaverCommentDTO> reviews = reviewDTO.getReviews();
